@@ -1,0 +1,19 @@
+{
+	"name": "illumos-cr2",
+	"version": "0.0.1",
+	"private": true,
+	"author": {
+		"name": "Joshua M. Clulow",
+		"email": "josh@sysmgr.org",
+		"url": "http://blog.sysmgr.org"
+	},
+	"dependencies": {
+		"express": "2.5.1",
+		"jade": ">= 0.0.1"
+	},
+	"description": "Code Review Upload App for illumos.org",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/jclulow/illumos-cr2"
+	}
+}
