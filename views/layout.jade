@@ -2,5 +2,22 @@
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body!= body
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/local.css')
+  body
+    .topbar
+      .fill
+        .container
+          a.brand(href='#') illumos Code Review
+          ul
+            li
+              a.active(href='#') Home
+          form.pull-right(action='')
+            input.input-small(type='text', placeholder='Username')
+            input.input-small(type='password', placeholder='Password')
+            button.btn(type='submit') Sign In
+    .container
+      .content
+        .page-header
+          h1= title
+        !{body}
