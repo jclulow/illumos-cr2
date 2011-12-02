@@ -1,0 +1,13 @@
+.row
+  .span16
+    h2 User: #{user.uid}
+    table
+      thead
+        tr
+          th Key
+          th Value
+      tbody
+        each val, key in user
+          tr
+            td= key
+            td= val

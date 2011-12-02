@@ -1,0 +1,15 @@
+- if (typeof (loginerror) !== 'undefined')
+  .row
+    .span16
+      .alert-message.error
+        p= loginerror
+form(method='POST',action='/login')
+  .row
+    .span16
+      input.input(name='login_user',type='text',placeholder='Username')
+  .row
+    .span16
+      input.input(name='login_pass',type='password',placeholder='Password')
+  .row
+    .span16
+      button.btn(type='submit') Sign In

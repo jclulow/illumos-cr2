@@ -10,12 +10,21 @@ html
         .container
           a.brand(href='#') illumos Code Review
           ul
-            li
-              a.active(href='#') Home
-          form.pull-right(action='')
-            input.input-small(type='text', placeholder='Username')
-            input.input-small(type='password', placeholder='Password')
-            button.btn(type='submit') Sign In
+            each val in links
+              -if (val.active)
+                li.active
+                  a(href=val.path)= val.title
+              - else
+                li
+                  a(href=val.path)= val.title
+          - if (!user.uid)
+            form.pull-right(action='/login',method='post')
+              input.input-small(name='top_user',type='text', placeholder='Username')
+              input.input-small(name='top_pass',type='password', placeholder='Password')
+              button.btn(type='submit') Sign In
+          - else
+            form.pull-right(action='/logout',method='get')
+              button.btn Sign Out
     .container
       .content
         .page-header

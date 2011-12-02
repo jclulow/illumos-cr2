@@ -9,7 +9,10 @@
 	},
 	"dependencies": {
 		"express": "2.5.1",
-		"jade": ">= 0.0.1"
+		"jade": ">= 0.0.1",
+		"redis": "*",
+		"connect-redis": "*",
+		"async": "*"
 	},
 	"description": "Code Review Upload App for illumos.org",
 	"repository": {
