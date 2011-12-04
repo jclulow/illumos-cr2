@@ -10,13 +10,14 @@ var redis = require('redis');
 var crypto = require('crypto');
 var util = require('util');
 var async = require('async');
-
 var RedisStore = require('connect-redis')(express);
+var crmgr = require('./crmgr');
+var login = require('./login');
+
+// Init
 
 var rc = redis.createClient();
-
-var crmgr = require('./crmgr');
-
+login.setRedisClient(rc);
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -67,12 +68,14 @@ async.waterfall([
     /* pre-initialise locals for template: */
     app.all('*', local_populator);
     /* application routes: */
-    app.get('/', routes.index);
+    app.get('/', function(req, res) { res.redirect('/cr'); });
+    app.get('/cr/new', login.enforce, crmgr.get_new);
     app.get('/cr/:id?', crmgr.get);
-    app.post('/cr/new', crmgr.post);
-    app.get('/login', handle_login_get);
-    app.post('/login', handle_login);
-    app.get('/logout', handle_logout);
+    app.post('/cr/new', login.enforce, crmgr.post);
+    /* login hooks */
+    app.get('/login', login.get);
+    app.post('/login', login.post);
+    app.get('/logout', login.logout);
     next();
   }],
   // error handler / final callback:
@@ -89,12 +92,17 @@ async.waterfall([
 
 // Routes
 
+/*
+ * pre-populate some variables that we use in the base
+ *  layout template.  they can be overridden by more specific
+ *  code later.
+ */
 function local_populator(req, res, next) {
 	var links = [];
 	res.local('links', [
 		{ active: true, path: '/cr', title: 'Browse Reviews' },
-		{ active: false, path: '/my/cr', title: 'My Reviews' },
-		{ active: false, path: '/cr/new', title: 'New Review' }
+		/* { active: false, path: '/my/cr', title: 'My Reviews' },
+		{ active: false, path: '/cr/new', title: 'New Review' } */
 	]);
 	if (req.session && req.session.user)
 		res.local('user', req.session.user);
@@ -102,52 +110,4 @@ function local_populator(req, res, next) {
 		res.local('user', {});
 	res.local('title', "XXX DEFAULT TITLE");
 	next();
-}
-
-function shasum(str) {
-	var sha = crypto.createHash('sha1');
-	sha.update(str);
-	return (sha.digest('hex'));
-}
-
-function handle_login_get(req, res, next) {
-	var opts = { title: 'Sign In' };
-	if (req.session.loginerror)
-		opts.loginerror = req.session.loginerror;
-	res.render('login', opts);
-}
-
-function handle_login(req, res, next) {
-	console.log("POST /login: " + util.inspect(req.body));
-	var username = req.body.top_user || req.body.login_user;
-	var password = req.body.top_pass || req.body.login_pass;
-	if (username && password) {
-		rc.hgetall('illumos:user:' + username, function (err, obj) {
-			if (err) {
-				console.log("error: " + util.inspect(err));
-				req.session.loginerror = 'Sorry, please try again!';
-				res.redirect('/login');
-			} else {
-				console.log("user: " + util.inspect(obj));
-				if (shasum(password) === obj.password) {
-					delete obj.password;
-					req.session.user = obj;
-					res.redirect('/');
-					//res.render('user', { title: 'User', user: obj });
-				} else {
-					req.session.loginerror = 'Sorry, please try again!';
-					res.redirect('/login');
-				}
-			}
-		});
-	} else {
-		req.session.loginerror = 'Sorry, you must enter a username and password!';
-		res.redirect('/login');
-	}
-}
-
-function handle_logout(req, res, next) {
-	console.log('GET /logout');
-	req.session.destroy();
-	return (res.redirect('/'));
 }
