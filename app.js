@@ -19,6 +19,7 @@ var login = require('./login');
 var rc = redis.createClient();
 login.setRedisClient(rc);
 var app = module.exports = express.createServer();
+var crm = new crmgr.CodeReviewManager(rc, '/var/tmp/CODEREVIEW');
 
 // Configuration
 
@@ -69,9 +70,9 @@ async.waterfall([
     app.all('*', local_populator);
     /* application routes: */
     app.get('/', function(req, res) { res.redirect('/cr'); });
-    app.get('/cr/new', login.enforce, crmgr.get_new);
-    app.get('/cr/:id?', crmgr.get);
-    app.post('/cr/new', login.enforce, crmgr.post);
+    app.get('/cr/new', login.enforce, crm.get_new);
+    app.get('/cr/:id?', crm.get);
+    app.post('/cr/new', login.enforce, crm.post);
     /* login hooks */
     app.get('/login', login.get);
     app.post('/login', login.post);
@@ -101,8 +102,8 @@ function local_populator(req, res, next) {
 	var links = [];
 	res.local('links', [
 		{ active: true, path: '/cr', title: 'Browse Reviews' },
-		/* { active: false, path: '/my/cr', title: 'My Reviews' },
-		{ active: false, path: '/cr/new', title: 'New Review' } */
+		// { active: false, path: '/my/cr', title: 'My Reviews' },
+		{ active: false, path: '/cr/new', title: 'New Review' }
 	]);
 	if (req.session && req.session.user)
 		res.local('user', req.session.user);

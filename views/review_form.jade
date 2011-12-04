@@ -1,3 +1,15 @@
-.row
-  .span16
-    form(method='POST',action='/cr/new')
+- if (typeof (error) !== 'undefined')
+  .row
+    .span16
+      .alert-message.error
+        p= loginerror
+form(method='POST',action='/cr/new',enctype="multipart/form-data")
+  .row
+    .span16
+      input.input(name='description',type='text',placeholder='Description')
+  .row
+    .span16
+      input.input(name='webrev',type='file')
+  .row
+    .span16
+      button.btn(type='submit') Upload Review
